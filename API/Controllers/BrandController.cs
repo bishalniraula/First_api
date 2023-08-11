@@ -1,4 +1,5 @@
 ﻿using API.Models;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
@@ -8,14 +9,18 @@ namespace API.Controllers
 {
     [Route("api/[controller]")]
     [ApiController]
+    [Authorize]
     public class BrandController : ControllerBase
     {
+        
         private readonly AppDbContext _context;
         public BrandController(AppDbContext context)
         {
             _context = context;
         }
+        [Authorize]
         [HttpGet]
+       
         public async Task<ActionResult<IEnumerable<Brand>>> GetBrandS()
         {
             if (_context.Brands == null)
@@ -24,7 +29,9 @@ namespace API.Controllers
             }
             return await _context.Brands.ToListAsync();
         }
+        [Authorize]
         [HttpGet("{id}")]
+       
         public async Task<ActionResult<Brand>> GetBrandById(int? id)
         {
             //if(_context.Brands == null)
