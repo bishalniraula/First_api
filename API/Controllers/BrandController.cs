@@ -3,7 +3,6 @@ using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using System.Data;
-using System.Reflection.Metadata.Ecma335;
 
 namespace API.Controllers
 {
@@ -49,7 +48,8 @@ namespace API.Controllers
             {
                 _context.Brands.Add(brand);
                 await _context.SaveChangesAsync();
-                return CreatedAtAction(nameof(GetBrandById), new { id = brand.ID }, brand);
+                //return Ok();
+              return CreatedAtAction(nameof(GetBrandById), new { id = brand.ID },brand);
             }
             return BadRequest();
 
