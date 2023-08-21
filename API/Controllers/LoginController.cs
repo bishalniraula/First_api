@@ -1,6 +1,7 @@
 ﻿using API.Models;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
 using System.IdentityModel.Tokens.Jwt;
 using System.Text;
@@ -11,46 +12,53 @@ namespace API.Controllers
     [ApiController]
     public class LoginController : Controller
     {
-        private IConfiguration _config;
-        public LoginController(IConfiguration configuration)
+        private readonly IConfiguration _configuration;
+        private readonly AppDbContext _context;
+        public LoginController(IConfiguration configuration, AppDbContext context)
         {
-            _config = configuration;
-        }
-        private User AuthenticateUSer(User user)
-
-        {
-            User _user = null;
-            if (user.Username == "test@test.com" && user.Password == "123")
-            {
-                _user = new User { Username = "BishalNiraula" };
-                
-            }
-            return _user;
-
-        }
-        private string GenerateTokens(User user)
-        {
-            var securityKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(_config["Jwt:Key"]));
-            var credentials = new SigningCredentials(securityKey, SecurityAlgorithms.HmacSha256);
-            var token = new JwtSecurityToken(_config["Jwt:Issuer"], _config["Jwt:Audience"], null,
-                expires: DateTime.Now.AddMinutes(1),
-                signingCredentials: credentials);
-            return new JwtSecurityTokenHandler().WriteToken(token);
+            _configuration = configuration;
+            _context = context;
         }
         [AllowAnonymous]
         [HttpPost]
         public IActionResult Login(User user)
         {
-            IActionResult response = Unauthorized();
-            var user_ = AuthenticateUSer(user);
-            if(user_ != null)
+            IActionResult response = null;
+            User _user = AuthenticateUser(user);
+            if (_user != null)
             {
-                var token =GenerateTokens(user);
-                response = Ok(new { token = token });
+                var token = GenerateTokem(user);
+                return Ok(new { token = token });
+               
+
             }
             return response;
+        }
+        private  User AuthenticateUser(User user)
+        {
+            User _user = null;
+            _user =  _context.users.Where(x => x.Username == user.Username && x.Password == user.Password).FirstOrDefault();
+            if (_user != null)
+            {
+                return new User { Username = user.Username };
+            }
+
+            return _user; 
+        }
+        private string GenerateTokem(User user)
+        {
+            SymmetricSecurityKey securitykey = new SymmetricSecurityKey
+                (Encoding.UTF8.GetBytes(_configuration["Jwt:key"]));
+            SigningCredentials credentials = new SigningCredentials(securitykey, SecurityAlgorithms.HmacSha256);
+            JwtSecurityToken token = new JwtSecurityToken(_configuration["Jwt:issuer"], _configuration["Jwt:audience"],
+                null,
+                expires: DateTime.Now.AddMinutes(5),
+                signingCredentials: credentials
+
+                );
+            return new JwtSecurityTokenHandler().WriteToken(token);
+
 
         }
     }
 }
-
