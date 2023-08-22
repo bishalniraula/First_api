@@ -37,7 +37,7 @@ namespace API.Controllers
             //if(_context.Brands == null)
             //{
             //    return NotFound();
-            //}           //Brand brand = await _context.Brands.FindAsync(id);
+            //}           //Brand brand = await _context.Brands. (id);
             //return brand;
 
             Brand brand = await _context.Brands.Where(x => x.ID == id).FirstOrDefaultAsync();

@@ -20,6 +20,7 @@ namespace API.Controllers
 
         [Authorize]
         [HttpGet]
+        
         public async Task<ActionResult<IEnumerable<User>>> GetUser()
         {
 
@@ -35,15 +36,15 @@ namespace API.Controllers
         [HttpGet("{id}")]
         public async Task <ActionResult<User>>GetUserById(int?id)
         {
-            if(id!=null)
+            if(id==null)
             {
                 return NotFound();
             }
                 User user = await _context.users.FindAsync(id);
                 if(user==null)
                 {
-                    return BadRequest();
-                }
+                throw new Exception("user not found");
+                  }
              return Ok(user);
                
             
