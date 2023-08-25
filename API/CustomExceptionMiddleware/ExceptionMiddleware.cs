@@ -1,9 +1,8 @@
 ﻿using API.Models;
 using System.Net;
 using System.Net.Mime;
-using API.Models;
 using System.Text.Json;
-using API.Controllers;
+
 
 
 namespace API.CustomExceptionMiddleware
@@ -17,14 +16,14 @@ namespace API.CustomExceptionMiddleware
     {
         //generics types vayera generics 
         private readonly ILogger<ExceptionMiddleware> _logger;
-        
+
         //ihost envrironment provides about the info abt hostin env
         private readonly IHostEnvironment _env;
 
         public ExceptionMiddleware(ILogger<ExceptionMiddleware> logger, IHostEnvironment env)
         {
             _logger = logger;
-            _env = env; 
+            _env = env;
         }
         //program entry point 
         public async Task InvokeAsync(HttpContext context, RequestDelegate next)
@@ -45,23 +44,26 @@ namespace API.CustomExceptionMiddleware
         private async Task HandleExceptionAsync(HttpContext context, Exception ex)
         {
             //response type :it contain the type of response to json data 
-           context.Response.ContentType = MediaTypeNames.Application.Json;
-//status code setup :which status code do we want to  setup it is set here
-////500: internal server error
-            context.Response.StatusCode= (int)HttpStatusCode.InternalServerError;
+            //media types means the format that is communicated between the client and the
+            context.Response.ContentType = MediaTypeNames.Application.Json;
+            //status code setup :which status code do we want to  setup it is set here
+            ////500: internal server error
+            context.Response.StatusCode = (int)HttpStatusCode.InternalServerError;
 
             //checks whether the app is running or not
-            var response = _env.IsDevelopment() 
-                
-                // ?=choose the  value based on the two condition given 
+            var response = _env.IsDevelopment()
+
+                   // ?=choose the  value based on the two condition given 
+                   // ? ToString: to avoid potential null reference exceptional
                    ? new CustomResponse(context.Response.StatusCode, ex.Message, ex.StackTrace?.ToString())
                    : new CustomResponse(context.Response.StatusCode, "Internal Server Error");
 
             //setting for json serialization , properties haru add garne kam garchha
-            var options = new JsonSerializerOptions { PropertyNamingPolicy = JsonNamingPolicy.CamelCase };
+            //format change  camel case ma change garchh garchhan jastei {"name:john","address:kathmandu "}
+            JsonSerializerOptions options = new JsonSerializerOptions { PropertyNamingPolicy = JsonNamingPolicy.CamelCase };
             //serialize the responses 
             var json = JsonSerializer.Serialize(response, options);
-          //serialized format ma dats respond garchha 
+            //serialized format ma dats respond garchha 
             await context.Response.WriteAsync(json);
 
         }
