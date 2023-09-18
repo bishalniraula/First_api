@@ -18,7 +18,7 @@ namespace API.Controllers
             _context = context;
         }
 
-        [Authorize]
+        
         [HttpGet]
         
         public async Task<ActionResult<IEnumerable<User>>> GetUser()
@@ -32,8 +32,8 @@ namespace API.Controllers
            return await  _context.users.ToListAsync();
 
         }
-        [Authorize]
         [HttpGet("{id}")]
+        
         public async Task <ActionResult<User>>GetUserById(int?id)
         {
             if(id==null)
@@ -50,15 +50,17 @@ namespace API.Controllers
             
         }
         [HttpPost]
+        
         public async Task <ActionResult<User>>InsertUser(User user)
         {
            if(ModelState.IsValid)
-            {
+           {
                 _context.users.Add(user);
                 _context.SaveChanges();
                 return Ok();
                 
-            }
+
+           }
             return BadRequest();
         }
 

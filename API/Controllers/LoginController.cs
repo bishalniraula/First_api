@@ -22,7 +22,7 @@ namespace API.Controllers
         }
         [AllowAnonymous]
         [HttpPost]
-        public IActionResult Login(User user)
+        public async Task <IActionResult> Login(User user)
         {
             IActionResult response = null;
             User _user = AuthenticateUser(user);
@@ -57,7 +57,9 @@ namespace API.Controllers
                 signingCredentials: credentials
 
                 );
-            return new JwtSecurityTokenHandler().WriteToken(token);
+            string str= new JwtSecurityTokenHandler().WriteToken(token);
+               return str;
+//            return new JwtSecurityTokenHandler().WriteToken(token);
 
 
         }
