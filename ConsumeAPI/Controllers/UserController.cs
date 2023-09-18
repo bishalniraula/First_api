@@ -1,14 +1,18 @@
 ﻿using ConsumeAPI.Models;
 using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Authentication.Cookies;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Newtonsoft.Json;
 using System.Security.Claims;
 using System.Text;
 namespace ConsumeAPI.Controllers
 {
+    
     public class UserController : Controller
     {
+        
+
 
         HttpClient client;
         private readonly IConfiguration _config;
@@ -17,6 +21,7 @@ namespace ConsumeAPI.Controllers
         {
             _config = config;
         }
+        
         [HttpGet]
         public async Task<ActionResult> Index()
         {
@@ -46,7 +51,7 @@ namespace ConsumeAPI.Controllers
             return View();
         }
         [HttpGet]
-        public async Task <ActionResult> Login()
+        public ActionResult Login()
         {
             return View();
         }
@@ -100,8 +105,9 @@ namespace ConsumeAPI.Controllers
 
 
 
-
+        [Authorize]
         [HttpPost]
+
         public async Task<IActionResult> CreateAsync(UserViewModel model)
         {
 
