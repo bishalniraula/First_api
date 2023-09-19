@@ -57,7 +57,7 @@ namespace API.Controllers
                 signingCredentials: credentials
 
                 );
-            string str= new JwtSecurityTokenHandler().WriteToken(token);
+            string str = new JwtSecurityTokenHandler().WriteToken(token);
                return str;
 //            return new JwtSecurityTokenHandler().WriteToken(token);
 

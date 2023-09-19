@@ -58,11 +58,10 @@ namespace API.Controllers
                 _context.users.Add(user);
                 _context.SaveChanges();
                 return Ok();
-                
-
            }
             return BadRequest();
         }
+
 
         
 

@@ -5,7 +5,7 @@ builder.Services.AddAuthentication(
     CookieAuthenticationDefaults.AuthenticationScheme)
     .AddCookie(option => {
         option.LoginPath = "/Access/Login";
-        option.ExpireTimeSpan = TimeSpan.FromSeconds(8);
+        option.ExpireTimeSpan = TimeSpan.FromSeconds(45);
 
     });
 // Add services to the container.
@@ -13,7 +13,7 @@ builder.Services.AddControllersWithViews();
 builder.Services.AddSession(options =>
 {
     options.Cookie.Name = ".AdventureWorks.Session";
-    options.IdleTimeout = TimeSpan.FromSeconds(8);
+    options.IdleTimeout = TimeSpan.FromSeconds(80);
     options.Cookie.IsEssential = true;
 });
 

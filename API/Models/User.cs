@@ -1,4 +1,5 @@
 ﻿
+using System.ComponentModel.DataAnnotations.Schema;
 using System.Globalization;
 using System.Text.Json.Serialization;
 
@@ -14,7 +15,7 @@ namespace API.Models
         
        
         public String Role { get; set; }
-     
+
 
     }
 }
