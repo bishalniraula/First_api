@@ -5,7 +5,7 @@
 namespace API.Migrations
 {
     /// <inheritdoc />
-    public partial class addmigration : Migration
+    public partial class addtodatabase : Migration
     {
         /// <inheritdoc />
         protected override void Up(MigrationBuilder migrationBuilder)

@@ -5,11 +5,17 @@ builder.Services.AddAuthentication(
     CookieAuthenticationDefaults.AuthenticationScheme)
     .AddCookie(option => {
         option.LoginPath = "/Access/Login";
-        option.ExpireTimeSpan = TimeSpan.FromMinutes(20);
+        option.ExpireTimeSpan = TimeSpan.FromSeconds(8);
 
     });
 // Add services to the container.
 builder.Services.AddControllersWithViews();
+builder.Services.AddSession(options =>
+{
+    options.Cookie.Name = ".AdventureWorks.Session";
+    options.IdleTimeout = TimeSpan.FromSeconds(8);
+    options.Cookie.IsEssential = true;
+});
 
 var app = builder.Build();
 
@@ -27,8 +33,11 @@ app.UseStaticFiles();
 
 app.UseRouting();
 
-app.UseAuthorization();
+
 app.UseAuthentication();
+app.UseAuthorization();
+app.UseSession();
+
 
 app.MapControllerRoute(
     name: "default",

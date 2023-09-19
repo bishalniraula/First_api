@@ -35,9 +35,9 @@ namespace API.Controllers
             }
             return response;
         }
-        private  User AuthenticateUser(User user)
+        private  User? AuthenticateUser(User user)
         {
-            User _user = null;
+            User? _user = null;
             _user =  _context.users.Where(x => x.Username == user.Username && x.Password == user.Password).FirstOrDefault();
             if (_user != null)
             {

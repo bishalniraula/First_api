@@ -2,16 +2,18 @@
 using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Newtonsoft.Json;
+using System.Diagnostics.Eventing.Reader;
 using System.Security.Claims;
 using System.Text;
 namespace ConsumeAPI.Controllers
 {
-    
+
     public class UserController : Controller
     {
-        
+
 
 
         HttpClient client;
@@ -21,7 +23,8 @@ namespace ConsumeAPI.Controllers
         {
             _config = config;
         }
-        
+
+        [Authorize]
         [HttpGet]
         public async Task<ActionResult> Index()
         {
@@ -45,14 +48,20 @@ namespace ConsumeAPI.Controllers
 
             return View();
         }
+        
         [HttpGet]
-        public async Task <IActionResult> Create()
+
+        public async Task<IActionResult> Create()
         {
             return View();
         }
         [HttpGet]
         public ActionResult Login()
         {
+            if (User.Identity.IsAuthenticated)
+            {
+                return RedirectToAction("Index", "User");
+            }
             return View();
         }
 
@@ -61,51 +70,62 @@ namespace ConsumeAPI.Controllers
         [HttpPost]
         public async Task<IActionResult> LoginAsync(UserViewModel model)
         {
+
             var apiUrl = _config.GetValue<string>("baseAddress");
             var Url = apiUrl + ("/api/Login");
-
-            using (HttpClient client = new HttpClient())
+            if (HttpContext.User.Identity.IsAuthenticated)
             {
-                HttpContent content = new StringContent(JsonConvert.SerializeObject(model), Encoding.UTF8, "application/json");
-                HttpResponseMessage result = client.PostAsync(Url , content).Result;
-                string resultContent = result.Content.ReadAsStringAsync().Result;
+                return RedirectToAction("Index", "User");
+            }
+            else
+            {
 
-                var token = JsonConvert.DeserializeObject(resultContent);
-                HttpResponseMessage response = await client.PostAsync(Url, content);
-                List<Claim> claims = new List<Claim>()
+
+                using (HttpClient client = new HttpClient())
+                {
+                    HttpContent content = new StringContent(JsonConvert.SerializeObject(model), Encoding.UTF8, "application/json");
+                    HttpResponseMessage result = client.PostAsync(Url, content).Result;
+                    string resultContent = result.Content.ReadAsStringAsync().Result;
+
+
+
+                    var token = JsonConvert.DeserializeObject(resultContent);
+                    HttpResponseMessage response = await client.PostAsync(Url, content);
+                    List<Claim> claims = new List<Claim>()
                     {
                 new Claim(ClaimTypes.NameIdentifier, model.Username),
                 new Claim(ClaimTypes.Role, model.Role)
-                
-
-                };
-                ClaimsIdentity claimsIdentity = new ClaimsIdentity(claims, CookieAuthenticationDefaults.AuthenticationScheme);
-
-                AuthenticationProperties properties = new AuthenticationProperties()
-                {
-                    AllowRefresh = true,
-
-                };
-               await  HttpContext.SignInAsync(CookieAuthenticationDefaults.AuthenticationScheme,
-
-                new ClaimsPrincipal(claimsIdentity), properties);
 
 
-                if (response.IsSuccessStatusCode)
-                {
-                    return RedirectToAction("Index", "User");
+                    };
+                    ClaimsIdentity claimsIdentity = new ClaimsIdentity(claims, CookieAuthenticationDefaults.AuthenticationScheme);
+
+                    AuthenticationProperties properties = new AuthenticationProperties()
+                    {
+                        AllowRefresh = true,
+
+                    };
+                    await HttpContext.SignInAsync(CookieAuthenticationDefaults.AuthenticationScheme,
+
+                     new ClaimsPrincipal(claimsIdentity), properties);
+
+
+                    if (response.IsSuccessStatusCode)
+                    {
+
+                        HttpContext.Session.SetString("UserName", model.Username);
+                        return RedirectToAction("Index", "User");
+                    }
                 }
-                
-
-
+                TempData["name"] = " Invalid Id and Password ";
+                return View();
             }
-            TempData["name"] = " Invalid Id and Password ";
-            return View();
+            
         }
 
 
 
-        [Authorize]
+        
         [HttpPost]
 
         public async Task<IActionResult> CreateAsync(UserViewModel model)
@@ -122,7 +142,7 @@ namespace ConsumeAPI.Controllers
 
                 if (response.IsSuccessStatusCode)
                 {
-                    return RedirectToAction("Index");
+                    return RedirectToAction("Login");
                 }
             }
             return View();
